@@ -1,0 +1,40 @@
+name: Dual-Platform Formal Verification CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  lean4-proof-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install Elan (Lean 4 Version Manager)
+        run: |
+          curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y
+          echo "$HOME/.elan/bin" >> $GITHUB_PATH
+
+      - name: Update Upstream Dependencies and Verify Codebase
+        run: |
+          lake update
+          lake build
+
+  coq-proof-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Coq Environment
+        uses: coq-community/docker-coq-action@v1
+        with:
+          coq_version: 'latest'
+          ocaml_version: 'latest'
+          script: |
+            cd coq
+            coq_makefile -f _CoqProject -o Makefile
+            make
