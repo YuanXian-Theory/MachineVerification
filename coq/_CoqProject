@@ -1,0 +1,5 @@
+-R theories/ YXT.Independence
+theories/Independence/Model1.v
+theories/Independence/Model2.v
+theories/Independence/Model3.v
+theories/Independence/Model4.v
