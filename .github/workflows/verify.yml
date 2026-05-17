@@ -1,35 +1,46 @@
 name: Dual-Platform Formal Verification CI
 
+# Controls when the workflow will run
 on:
   push:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
 
+# Defines the actual tasks to be executed by GitHub's cloud servers
 jobs:
   lean4-proof-validation:
+    name: Validate Lean 4 Independence Proofs
     runs-on: ubuntu-latest
+
     steps:
+      # Step 1: Clone the repository code onto the runner
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Install Elan (Lean 4 Version Manager)
+      # Step 2: Install Elan (The official Lean 4 version manager)
+      - name: Install Elan (Lean 4 toolchain)
         run: |
           curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y
           echo "$HOME/.elan/bin" >> $GITHUB_PATH
 
-      - name: Update Upstream Dependencies and Verify Codebase
+      # Step 3: Fetch YXT-Formalization upstream dependency and test type-safety
+      - name: Update Dependencies and Run Lean 4 Type-Check
         run: |
           lake update
           lake build
 
   coq-proof-validation:
+    name: Validate Coq Mirror Proofs
     runs-on: ubuntu-latest
+
     steps:
+      # Step 1: Clone the repository code onto the runner
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Coq Environment
+      # Step 2: Use an isolated Docker container pre-configured with Coq to compile files
+      - name: Run Coq Compilation and Verification
         uses: coq-community/docker-coq-action@v1
         with:
           coq_version: 'latest'
